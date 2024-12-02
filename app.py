@@ -10,9 +10,13 @@ load_dotenv()
 def create_app():
     app = Flask(__name__)
 
-    if os.getenv('DATABASE_URL') and os.getenv('DATABASE_URL').startswith('postgres://'):
-        app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL').replace('postgres://', 'postgresql://')
-
+    if os.getenv('DATABASE_URL'):
+        db_url = os.getenv('DATABASE_URL')
+        if db_url.startswith('postgres://'):
+            db_url = db_url.replace('postgres://', 'postgresql://')
+        app.config['SQLALCHEMY_DATABASE_URI'] = db_url + "?sslmode=require"
+    
+    
     # Configurer l'application
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
     app.config['JWT_SECRET_KEY'] = os.getenv('SECRET_KEY')

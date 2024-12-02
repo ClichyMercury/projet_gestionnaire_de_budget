@@ -8,7 +8,7 @@ class User(db.Model):
     password_hash = db.Column(db.String(128), nullable=False)
     first_name = db.Column(db.String(80), nullable=False)
     last_name = db.Column(db.String(80), nullable=False)
-    profile_picture = db.Column(db.String, nullable=True)  # Storing as base64 string
+    profile_picture = db.Column(db.Text, nullable=True)  # Storing as base64 string
 
     def __init__(self, username, email, password, first_name, last_name, profile_picture=None):
         self.username = username
