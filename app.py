@@ -26,7 +26,12 @@ def create_app():
     migrate.init_app(app, db)
 
     with app.app_context():
+        from flask_migrate import upgrade
         db.create_all()
+        try:
+            upgrade()
+        except:
+            pass
 
     # Register Blueprints
     from routes.auth_routes import auth_bp
