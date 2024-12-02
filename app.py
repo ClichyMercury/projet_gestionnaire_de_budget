@@ -1,6 +1,7 @@
 from flask import Flask, send_from_directory, jsonify
 import os
 import re
+import logging
 from dotenv import load_dotenv
 from extensions import db, jwt, bcrypt, migrate
 
@@ -8,6 +9,8 @@ load_dotenv()
 
 def create_app():
    app = Flask(__name__)
+   logging.basicConfig(level=logging.DEBUG)
+   app.logger.setLevel(logging.DEBUG)
    
    if os.getenv('DATABASE_URL'):
        db_url = os.getenv('DATABASE_URL')
@@ -30,8 +33,8 @@ def create_app():
        db.create_all()
        try:
            upgrade()
-       except:
-           pass
+       except Exception as e:
+           app.logger.error(f"Migration error: {str(e)}")
 
    from routes.auth_routes import auth_bp
    from routes.transaction_routes import transaction_bp
@@ -54,9 +57,11 @@ def create_app():
 
    @app.errorhandler(500)
    def handle_500(e):
+       app.logger.error(f"500 Error: {str(e)}")
        return jsonify({
            'error': 'Internal server error',
-           'message': str(e)
+           'message': str(e),
+           'details': app.debug and str(e.__dict__) or None
        }), 500
 
    return app
