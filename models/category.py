@@ -9,5 +9,10 @@ class Category(db.Model):
     subcategories = db.relationship('Category', backref=db.backref('parent', remote_side=[id]), lazy=True)
     description = db.Column(db.String(200))  # Description de la catégorie
 
+        # Dans Category model
+    __table_args__ = (
+        db.Index('idx_user_category', 'user_id', 'name'),
+    )
+
     def __repr__(self):
         return f'<Category {self.name}>'

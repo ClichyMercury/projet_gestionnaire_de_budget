@@ -1,5 +1,6 @@
 from flask import Flask, send_from_directory
 import os
+import re
 from dotenv import load_dotenv
 from extensions import db, jwt, bcrypt, migrate
 
@@ -8,6 +9,9 @@ load_dotenv()
 
 def create_app():
     app = Flask(__name__)
+
+    if os.getenv('DATABASE_URL') and os.getenv('DATABASE_URL').startswith('postgres://'):
+        app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL').replace('postgres://', 'postgresql://')
 
     # Configurer l'application
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')

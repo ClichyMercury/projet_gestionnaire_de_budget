@@ -18,5 +18,11 @@ class Transaction(db.Model):
     user = db.relationship('User', backref=db.backref('transactions', lazy=True))
     category = db.relationship('Category', backref=db.backref('transactions', lazy=True))
 
+        # Dans Transaction model
+    __table_args__ = (
+        db.Index('idx_user_date', 'user_id', 'date'),
+    )
+
+
     def __repr__(self):
         return f'<Transaction {self.description} - {self.amount}>'
