@@ -1,0 +1,99 @@
+{# transactions_list.html #}
+{% extends "base.html" %}
+
+{% block title %}Transactions | BudgetMaster{% endblock %}
+
+{% block content %}
+<div class="dashboard-header mb-4">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="section-title mb-0">Transactions</h1>
+            <p class="section-subtitle">Gérez vos revenus et dépenses</p>
+        </div>
+        <a href="{{ url_for('web.new_transaction') }}" class="btn btn-primary">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-2">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Nouvelle transaction
+        </a>
+    </div>
+</div>
+
+<div class="content-card">
+    <div class="table-responsive">
+        <table class="table custom-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Description</th>
+                    <th>Montant</th>
+                    <th>Catégorie</th>
+                    <th>Paiement</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for transaction in transactions %}
+                <tr>
+                    <td>{{ transaction.date.strftime('%d/%m/%Y') }}</td>
+                    <td class="description-cell">{{ transaction.description }}</td>
+                    <td>
+                        <span class="amount-badge {{ 'income' if transaction.amount > 0 else 'expense' }}">
+                            {{ transaction.amount }} {{ transaction.currency }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="category-tag">
+                            {{ transaction.category.name if transaction.category else 'Non catégorisé' }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="payment-method">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                {% if transaction.payment_method == 'card' %}
+                                <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                                <line x1="1" y1="10" x2="23" y2="10"></line>
+                                {% elif transaction.payment_method == 'cash' %}
+                                <rect x="2" y="6" width="20" height="12" rx="2"></rect>
+                                <circle cx="12" cy="12" r="2"></circle>
+                                {% elif transaction.payment_method == 'transfer' %}
+                                <polyline points="17 1 21 5 17 9"></polyline>
+                                <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
+                                {% else %}
+                                <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+                                <line x1="12" y1="18" x2="12" y2="18"></line>
+                                {% endif %}
+                            </svg>
+                            {{ transaction.payment_method|title }}
+                        </span>
+                    </td>
+                    <td class="text-end">
+                        <div class="action-buttons">
+                            <a href="{{ url_for('web.edit_transaction', transaction_id=transaction.id) }}" 
+                               class="btn btn-icon btn-light" title="Modifier">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+                                </svg>
+                            </a>
+                            <form action="{{ url_for('web.delete_transaction', transaction_id=transaction.id) }}" 
+                                  method="POST" 
+                                  class="d-inline"
+                                  onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette transaction?')">
+                                <button type="submit" class="btn btn-icon btn-light" title="Supprimer">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M3 6h18"></path>
+                                        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                                        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                                    </svg>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

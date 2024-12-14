@@ -1,4 +1,4 @@
-from flask import Flask, send_from_directory, jsonify
+from flask import Flask, send_from_directory, jsonify, render_template
 import os
 import re
 import logging
@@ -36,6 +36,7 @@ def create_app():
        except Exception as e:
            app.logger.error(f"Migration error: {str(e)}")
 
+   from routes.web_routes import web_bp
    from routes.auth_routes import auth_bp
    from routes.transaction_routes import transaction_bp
    from routes.category_routes import category_bp
@@ -45,10 +46,12 @@ def create_app():
    app.register_blueprint(transaction_bp, url_prefix='/api')
    app.register_blueprint(category_bp, url_prefix='/api')
    app.register_blueprint(report, url_prefix='/api')
+   app.register_blueprint(web_bp)
+
 
    @app.route('/')
    def home():
-       return "Bienvenue sur le Gestionnaire de Budget !"
+       return render_template('base.html')
 
    @app.route('/favicon.ico')
    def favicon():

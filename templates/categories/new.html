@@ -1,0 +1,202 @@
+{# new_category.html #}
+{% extends "base.html" %}
+
+{% block title %}Nouvelle Catégorie | BudgetMaster{% endblock %}
+
+{% block content %}
+<div class="dashboard-header mb-4">
+    <h1 class="section-title">Nouvelle Catégorie</h1>
+    <p class="section-subtitle">Créez une nouvelle catégorie pour organiser vos transactions</p>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="content-card">
+            <div class="card-body p-4">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <form method="POST" class="category-form">
+                    <div class="mb-4">
+                        <label for="name" class="form-label">Nom de la catégorie</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="type" class="form-label">Type de catégorie</label>
+                        <div class="type-selector">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="type" id="type-expense" value="expense" checked>
+                                <label class="form-check-label" for="type-expense">Dépense</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="type" id="type-income" value="income">
+                                <label class="form-check-label" for="type-income">Revenu</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="3" 
+                                placeholder="Décrivez brièvement cette catégorie..."></textarea>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="parent_id" class="form-label">Catégorie parente (optionnel)</label>
+                        <select class="form-select" id="parent_id" name="parent_id">
+                            <option value="">Aucune - Catégorie principale</option>
+                            {% if parent_categories %}
+                                {% for category in parent_categories %}
+                                    <option value="{{ category.id }}">{{ category.name }}</option>
+                                {% endfor %}
+                            {% endif %}
+                        </select>
+                        <div class="form-text">Une sous-catégorie permet une meilleure organisation de vos transactions.</div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{{ url_for('web.categories') }}" class="btn btn-light">Annuler</a>
+                        <button type="submit" class="btn btn-primary">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-2">
+                                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                                <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                                <polyline points="7 3 7 8 15 8"></polyline>
+                            </svg>
+                            Créer la catégorie
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block head %}
+<style>
+    .content-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+    }
+
+    .custom-table th {
+        font-weight: 500;
+        color: #6c757d;
+        border-top: none;
+        padding: 1rem 1.5rem;
+    }
+
+    .custom-table td {
+        padding: 1rem 1.5rem;
+        vertical-align: middle;
+    }
+
+    .category-name {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .category-icon {
+        width: 32px;
+        height: 32px;
+        background: var(--accent-color);
+        color: white;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 500;
+    }
+
+    .category-type-badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+
+    .category-type-badge.income {
+        background: #d4edda;
+        color: #198754;
+    }
+
+    .category-type-badge.expense {
+        background: #f8d7da;
+        color: #dc3545;
+    }
+
+    .parent-category {
+        color: #6c757d;
+        font-size: 0.875rem;
+    }
+
+    .btn-icon {
+        width: 36px;
+        height: 36px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        border: none;
+        transition: all 0.2s ease;
+    }
+
+    .btn-icon:hover {
+        transform: translateY(-2px);
+    }
+
+    .btn-danger {
+        background: #dc3545;
+        color: white;
+    }
+
+    .btn-danger:hover {
+        background: #bb2d3b;
+    }
+
+    .category-form .form-control,
+    .category-form .form-select {
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+        border: 1px solid #dee2e6;
+    }
+
+    .category-form .form-control:focus,
+    .category-form .form-select:focus {
+        border-color: var(--accent-color);
+        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.25);
+    }
+
+    .type-selector {
+        background: #f8f9fa;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-top: 0.5rem;
+    }
+
+    .form-check-input:checked {
+        background-color: var(--accent-color);
+        border-color: var(--accent-color);
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: flex-end;
+    }
+</style>
+{% endblock %}

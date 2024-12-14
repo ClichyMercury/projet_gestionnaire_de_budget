@@ -1,0 +1,276 @@
+{% extends "base.html" %}
+
+{% block title %}Tableau de bord | BudgetMaster{% endblock %}
+
+{% block content %}
+<div class="dashboard-header mb-5">
+    <h1 class="section-title">Tableau de bord</h1>
+    <p class="section-subtitle">Aperçu de vos finances personnelles</p>
+</div>
+
+<!-- Cartes de statistiques -->
+<div class="row mb-5">
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="1" x2="12" y2="23"></line>
+                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                </svg>
+            </div>
+            <div class="stat-info">
+                <h3 class="stat-title">Solde actuel</h3>
+                <p class="stat-value">2 500 €</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon income">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                    <polyline points="17 6 23 6 23 12"></polyline>
+                </svg>
+            </div>
+            <div class="stat-info">
+                <h3 class="stat-title">Revenus du mois</h3>
+                <p class="stat-value positive">+1 800 €</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon expense">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"></polyline>
+                    <polyline points="17 18 23 18 23 12"></polyline>
+                </svg>
+            </div>
+            <div class="stat-info">
+                <h3 class="stat-title">Dépenses du mois</h3>
+                <p class="stat-value negative">-1 200 €</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+                </svg>
+            </div>
+            <div class="stat-info">
+                <h3 class="stat-title">Catégories actives</h3>
+                <p class="stat-value">{{ categories|length }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Dernières transactions -->
+    <div class="col-lg-8 mb-4">
+        <div class="content-card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h2 class="card-title">Dernières transactions</h2>
+                <a href="{{ url_for('web.transactions_list') }}" class="btn btn-outline-primary btn-sm">Voir tout</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table custom-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Description</th>
+                            <th>Montant</th>
+                            <th>Catégorie</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for transaction in transactions %}
+                        <tr>
+                            <td>{{ transaction.date.strftime('%d/%m/%Y') }}</td>
+                            <td>{{ transaction.description }}</td>
+                            <td class="{{ 'text-success' if transaction.amount > 0 else 'text-danger' }}">
+                                {{ transaction.amount }}€
+                            </td>
+                            <td>
+                                <span class="category-tag">
+                                    {{ transaction.category.name if transaction.category else 'Non catégorisé' }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Catégories -->
+    <div class="col-lg-4 mb-4">
+        <div class="content-card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h2 class="card-title">Catégories</h2>
+                <a href="{{ url_for('web.categories') }}" class="btn btn-outline-primary btn-sm">Gérer</a>
+            </div>
+            <div class="category-list">
+                {% for category in categories %}
+                <div class="category-item">
+                    <span class="category-name">{{ category.name }}</span>
+                    <span class="category-count badge bg-light text-dark">{{ category.transactions|length }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block head %}
+<style>
+    .dashboard-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .content-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+        overflow: hidden;
+    }
+
+    .card-header {
+        background: white;
+        border-bottom: 1px solid #eee;
+        padding: 1.5rem;
+    }
+
+    .card-title {
+        font-size: 1.25rem;
+        margin: 0;
+        color: var(--primary-color);
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .stat-icon {
+        background: #e9ecef;
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1rem;
+        color: var(--primary-color);
+    }
+
+    .stat-icon.income {
+        background: #d4edda;
+        color: #198754;
+    }
+
+    .stat-icon.expense {
+        background: #f8d7da;
+        color: #dc3545;
+    }
+
+    .stat-title {
+        font-size: 0.875rem;
+        color: #6c757d;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin: 0;
+        color: var(--primary-color);
+    }
+
+    .stat-value.positive {
+        color: #198754;
+    }
+
+    .stat-value.negative {
+        color: #dc3545;
+    }
+
+    .custom-table {
+        margin: 0;
+    }
+
+    .custom-table th {
+        font-weight: 500;
+        color: #6c757d;
+        border-top: none;
+        padding: 1rem 1.5rem;
+    }
+
+    .custom-table td {
+        padding: 1rem 1.5rem;
+        vertical-align: middle;
+    }
+
+    .category-tag {
+        background: #e9ecef;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        color: var(--primary-color);
+    }
+
+    .category-list {
+        padding: 1rem;
+    }
+
+    .category-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid #eee;
+        transition: background-color 0.2s ease;
+    }
+
+    .category-item:last-child {
+        border-bottom: none;
+    }
+
+    .category-item:hover {
+        background-color: #f8f9fa;
+    }
+
+    .category-name {
+        font-weight: 500;
+        color: var(--primary-color);
+    }
+
+    .category-count {
+        font-size: 0.875rem;
+    }
+
+    .btn-outline-primary {
+        color: var(--accent-color);
+        border-color: var(--accent-color);
+    }
+
+    .btn-outline-primary:hover {
+        background-color: var(--accent-color);
+        border-color: var(--accent-color);
+        color: white;
+    }
+</style>
+{% endblock %}
